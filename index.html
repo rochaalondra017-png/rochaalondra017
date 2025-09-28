@@ -38,6 +38,19 @@
       border-radius: 50%;
     }
 
+    /* Flecha */
+    #arrow {
+      position: absolute;
+      bottom: -30px; /* flecha más abajo para no tapar el botón */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      Border-bottom: 30px solid #ff9000; /* Flecha apuntando hacia abajo */
+      z-index: 10;
+    }
 
     #nameInput {
       margin: 15px 0;
@@ -48,7 +61,7 @@
     }
 
     #spinBtn {
-      margin-top: 10px;
+      margin-top: 50px;
       padding: 12px 25px;
       background-color: #254eff;
       color: white;
@@ -87,8 +100,8 @@
 
   <input type="text" id="nameInput" placeholder="Escribe tu nombre para jugar">
   <div id="wheelContainer">
-    <div id="arrow"></div>
     <canvas id="wheelCanvas" width="400" height="400"></canvas>
+    <div id="arrow"></div>
   </div>
   <button id="spinBtn">¡Girar!</button>
   <div id="result"></div>
@@ -96,12 +109,12 @@
 
   <script>
     const options = [
-      "10% OFF", "",
-      "Mr Smash Gratis", "",
-      "Papas Smash Gratis", "",
-      "5% OFF", "",
-      "Postre Gratis", "",
-      "Envío Gratis", ""
+      "10% OFF", "Gracias por participar",
+      "Mr Fresh Gratis", "Brownie Gratis",
+      "Papas Smash Gratis", "Envío Gratis",
+      "5% OFF", "Suerte para la próxima",
+      "Postre Gratis", "5% OFF",
+      "Sigue participando", "Papas Extra"
     ];
 
     const colors = [
@@ -113,7 +126,7 @@
       "#ff9000", "#f1f1f1"
     ];
 
-    let startAngle = 0;
+    let startAngle = 340;
     const arcSize = (2 * Math.PI) / options.length;
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
@@ -147,7 +160,7 @@
         return;
       }
 
-      document.getElementById("spinBtn").disabled = true; // solo una vez
+      document.getElementById("spinBtn").disabled = true;
       const spinAngle = Math.random() * 360 + 1800; // mínimo 5 giros
       const duration = 4000;
       const start = performance.now();
@@ -160,21 +173,27 @@
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           drawWheel();
           requestAnimationFrame(animate);
-    } else {
-      const finalAngle = (spinAngle % 360) * Math.PI / 360;
+        } else {
+          // Calcular premio con flecha abajo
+          // Al terminar la animación: 
+          const finalAngle = startAngle % (2 * Math.PI);
 
- 
-      const adjustedAngle = (startAngle + finalAngle) % (2 * Math.PI);
-      const index = Math.floor(((2 * Math.PI) - adjustedAngle) / arcSize) % options.length;
+          //Convertir a grados
+          let degrees = finalAngle * (360 / Math.PI);
 
-  const prize = options[index];
-  document.getElementById("result").innerText =
-    prize === "" ? `❌ Lo sentimos ${name}, intenta de nuevo.` : `🎉 Felicidades ${name}, ganaste: ${prize}!`;
+          
+          degrees = (degrees + 90) % 360;
+          const index = Math.floor(degrees / (360 / options.length));
+          
 
-  document.getElementById("shareMsg").innerText =
-    "📸 Toma una captura, súbela a tus historias y comparte tu resultado para que más  personas jueguen 🎡"; 
-  }
- }
+          const prize = options[index];
+          document.getElementById("result").innerText =
+            prize === "" ? `❌ Lo sentimos ${name}, intenta de nuevo.` : `🎉  ${name} , : Tienes 5 días a partir de esta captura para reclamar tu premio! 🎉 `;
+
+          document.getElementById("shareMsg").innerText =
+            "📸 Toma una captura, súbela a tus historias y comparte tu resultado para que más personas jueguen 🎡 Vigencia del premio 5 días después de esta captura"; 
+        }
+      }
       requestAnimationFrame(animate);
     }
 
